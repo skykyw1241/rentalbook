@@ -1,0 +1,97 @@
+server:
+  port: 8081
+
+api:
+  url:
+    delivery: http://localhost:8082
+
+# Master Value
+superuser:
+  userId: ${_SUPER_UID:admin123}
+
+---
+
+spring:
+  profiles: default
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+        streams:
+          binder:
+            configuration:
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      bindings:
+        rentalSaved-in:
+          group: Rental
+          destination: bookrental
+          contentType: application/json
+        rentalSaved-out:
+          destination: bookrental
+          contentType: application/json
+
+        bookSaved-in:
+          group: Book
+          destination: book
+          contentType: application/json
+        bookSaved-out:
+          destination: book
+          contentType: application/json
+
+        customerSaved-in:
+          group: Book
+          destination: customer
+          contentType: application/json
+        customerSaved-out:
+          destination: customer
+          contentType: application/json
+
+        deliverySaved-in:
+          group: Delivery
+          destination: delivery
+          contentType: application/json
+        deliverySaved-out:
+          destination: delivery
+          contentType: application/json
+
+logging:
+  level:
+    org.hibernate.type: trace
+    org.springframework.cloud: debug
+server:
+  port: 8084
+---
+
+spring:
+  profiles: docker
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: my-kafka.kafka.svc.cluster.local:9092
+        streams:
+          binder:
+            configuration:
+              default:
+                key:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value:
+                  serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+      bindings:
+        event-in:
+          group: Rental
+          destination: rentalbook
+          contentType: application/json
+        event-out:
+          destination: rentalbook
+          contentType: application/json
